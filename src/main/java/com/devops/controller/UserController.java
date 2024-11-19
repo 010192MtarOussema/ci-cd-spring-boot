@@ -2,6 +2,8 @@ package com.devops.controller;
 
 
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,5 +25,16 @@ public class UserController {
     public ResponseEntity<User> addUser(@RequestBody UserDto userDto) {
         User user = userService.saveUser(userDto);
         return ResponseEntity.ok(user);
+    }
+ // Endpoint pour récupérer tous les utilisateurs
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    // Endpoint pour récupérer un utilisateur par ID
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 }
