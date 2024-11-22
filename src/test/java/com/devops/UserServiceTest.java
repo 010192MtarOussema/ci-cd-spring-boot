@@ -64,6 +64,7 @@ class UserServiceTest {
         // Mock data
         User mockUser = new User() {{ setId(1L); setName("John Doe"); setEmail("john@example.com"); }};
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        System.out.println("---------¨^^^bienvenu aux tests unitaires ------------^^^^^^----------");
 
         // Execute
         User user = userService.getUserById(1L);
