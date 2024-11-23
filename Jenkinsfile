@@ -13,12 +13,18 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
+                bat './mvnw test'
+
             }
         }
 
         stage('Build Application') {
             steps {
-                echo 'Building application for production...'
+
+                echo '...  Building application  ...'
+                bat './mvnw clean install'
+                echo 'Building application sucées...'
+                
              
             }
         }
