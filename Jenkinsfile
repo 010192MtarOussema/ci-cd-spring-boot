@@ -18,7 +18,10 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                echo 'Building application for production...'
+                echo '...  Building application  ...'
+                sh './mvnw clean package'
+                echo 'Building application sucées...'
+                
              
             }
         }
