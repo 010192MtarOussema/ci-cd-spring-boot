@@ -37,29 +37,28 @@ pipeline {
             when {
                 branch 'main' // Exécuter uniquement sur la branche principale
             }
-            steps {
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'VM-Centos', // Nom défini dans Publish Over SSH
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'target/*.jar', // Fichiers JAR générés après le build
-                                    remoteDirectory: '/home/jenkinsuser/deployments', // Répertoire cible sur la VM
-                                    execCommand: '''
-                                        echo "Stopping previous application..."
-                                        nohup java -jar /home/jenkinsuser/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
-                                        echo "Starting new application..."
-                                    '''
-                                )
-                            ]
-                        )
-                    ]
-                    
-                )
-                echo 'Application deployed successfully to production!'
-            }
-        }
+steps {
+    sshPublisher(
+        publishers: [
+            sshPublisherDesc(
+                configName: 'VM-Centos', // Nom défini dans Publish Over SSH
+                transfers: [
+                    sshTransfer(
+                        sourceFiles: 'target/demo-ci-cd-0.0.1-SNAPSHOT.jar', // Fichier JAR spécifique à transférer
+                        remoteDirectory: '/home/jenkinsuser', // Répertoire cible
+                        execCommand: '''
+                            echo "Stopping previous application..."
+                            pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar || echo "No application running"
+                            echo "Starting new application..."
+                            nohup java -jar /home/jenkinsuser/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/app.log 2>&1 &
+                        '''
+                    )
+                ]
+            )
+        ]
+    )
+}
+
     }
 
     post {
