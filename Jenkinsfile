@@ -50,7 +50,7 @@ pipeline {
                                         echo "Stopping previous application..."
                                         pkill -f myapp.jar || echo "No application running"
                                         echo "Starting new application..."
-                                        nohup java -jar /home/jenkinsuser/deployments/myapp.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
+                                        nohup java -jar /home/jenkinsuser/home/jenkinsuser/deployments/target/myapp.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
                                     '''
                                 )
                             ]
