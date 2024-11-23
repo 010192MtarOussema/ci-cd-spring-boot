@@ -1,12 +1,17 @@
 pipeline {
     agent any
-  stages {
-    stage('Scan') {
-      steps {
-        withSonarQubeEnv(installationName: 'sq1') { 
-          bat './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+    stages {
+        stage('Compile') { // Étape de compilation
+            steps {
+                bat './mvnw clean compile' // Compile le projet pour générer les classes
+            }
         }
-      }
+        stage('Scan') { // Étape d'analyse SonarQube
+            steps {
+                withSonarQubeEnv('sq1') { // Utilisation de l'environnement SonarQube configuré
+                    bat './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes'
+                }
+            }
+        }
     }
-  }
 }
