@@ -50,12 +50,12 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: 'target/demo-ci-cd-0.0.1-SNAPSHOT.jar', // Fichier JAR spécifique à transférer
-                                    remoteDirectory: '/home/jenkinsuser', // Répertoire cible
+                                    remoteDirectory: '/', // Répertoire cible
                                     execCommand: '''
                                         echo "Stopping previous application..."
                                         pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar || echo "No application running"
                                         echo "Starting new application..."
-                                        nohup java -jar /home/jenkinsuser/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/app.log 2>&1 &
+                                        nohup java -jar demo-ci-cd-0.0.1-SNAPSHOT.jar 
                                     '''
                                 )
                             ]
