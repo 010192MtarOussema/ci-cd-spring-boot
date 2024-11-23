@@ -48,14 +48,14 @@ pipeline {
                                     remoteDirectory: '/home/jenkinsuser/deployments', // Répertoire cible sur la VM
                                     execCommand: '''
                                         echo "Stopping previous application..."
-                                        pkill -f myapp.jar || echo "No application running"
+                                        nohup java -jar /home/jenkinsuser/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
                                         echo "Starting new application..."
-                                        nohup java -jar /home/jenkinsuser/home/jenkinsuser/deployments/target/myapp.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
                                     '''
                                 )
                             ]
                         )
                     ]
+                    
                 )
                 echo 'Application deployed successfully to production!'
             }
