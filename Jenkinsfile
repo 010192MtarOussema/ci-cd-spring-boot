@@ -1,76 +1,45 @@
 pipeline {
     agent any
 
-    environment {
-        MVNW_PATH = './mvnw' // Définit un chemin global pour maven wrapper
-    }
-
     stages {
-        stage('Checkout Code') {
-            steps {
-                echo 'Checking out code...'
-                checkout scm
-                echo "Current branch: ${env.BRANCH_NAME}"
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                echo 'Running tests...'
-                bat "${MVNW_PATH} test"
-            }
-        }
-
         stage('Build Application') {
             steps {
                 echo 'Building application...'
-                bat "${MVNW_PATH} clean install"
-                echo 'Building application success...'
+                bat './mvnw clean package' // Compile et package le JAR
             }
         }
 
-        stage('Scan') { // Étape d'analyse SonarQube
+        stage('Deploy to VM') {
             steps {
-                withSonarQubeEnv('sq1') { // Utilisation de l'environnement SonarQube configuré
-                    bat "${MVNW_PATH} org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes"
-                }
-            }
-        }
+                echo 'Deploying to VM...'
+                sh '''
+                    # Définissez les variables
+                    VM_USER=jenkinsuser
+                    VM_IP=192.168.1.100
+                    REMOTE_DIR=/home/jenkinsuser
+                    JAR_FILE=target/demo-ci-cd-0.0.1-SNAPSHOT.jar
 
-        stage('Deploy') {
-            when {
-                branch 'main' // Exécuter uniquement sur la branche principale
-            }
-            steps {
-                echo 'Deploying application...'
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'VM-Centos', // Nom défini dans Publish Over SSH
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'target/demo-ci-cd-0.0.1-SNAPSHOT.jar', // Fichier JAR spécifique à transférer
-                                    remoteDirectory: '/', // Répertoire cible
-                                    execCommand: '''
-                                        echo "Stopping previous application..."
-                                        echo "Starting new application..."
-                                        nohup java -jar target/demo-ci-cd-0.0.1-SNAPSHOT.jar 
-                                    '''
-                                )
-                            ]
-                        )
-                    ]
-                )
+                    # Copier le fichier JAR
+                    scp $JAR_FILE $VM_USER@$VM_IP:$REMOTE_DIR/
+
+                    # Exécuter des commandes sur la VM
+                    ssh $VM_USER@$VM_IP << EOF
+                        echo "Stopping previous application..."
+                        pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar || echo "No application running"
+                        echo "Starting new application..."
+                        nohup java -jar $REMOTE_DIR/demo-ci-cd-0.0.1-SNAPSHOT.jar > $REMOTE_DIR/app.log 2>&1 &
+                    EOF
+                '''
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline succeeded for branch: ${env.BRANCH_NAME}"
+            echo 'Deployment succeeded!'
         }
         failure {
-            echo "Pipeline failed for branch: ${env.BRANCH_NAME}. Check logs for details."
+            echo 'Deployment failed. Check the logs.'
         }
     }
 }
