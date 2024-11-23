@@ -35,10 +35,29 @@ pipeline {
 
         stage('Deploy') {
             when {
-                branch 'main'
+                branch 'main' // Exécuter uniquement sur la branche principale
             }
             steps {
-                echo 'Deploying application to production...'
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'VM-Centos', // Nom défini dans Publish Over SSH
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'target/*.jar', // Fichiers JAR générés après le build
+                                    remoteDirectory: '/home/jenkinsuser/deployments', // Répertoire cible sur la VM
+                                    execCommand: '''
+                                        echo "Stopping previous application..."
+                                        pkill -f myapp.jar || echo "No application running"
+                                        echo "Starting new application..."
+                                        nohup java -jar /home/jenkinsuser/deployments/myapp.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
+                                    '''
+                                )
+                            ]
+                        )
+                    ]
+                )
+                echo 'Application deployed successfully to production!'
             }
         }
     }
