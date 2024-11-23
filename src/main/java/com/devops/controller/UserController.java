@@ -14,7 +14,8 @@ import com.devops.service.UserService;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
+	int x =10 ;
+	private String text ; 
     private final UserService userService;
 
     public UserController(UserService userService) {
