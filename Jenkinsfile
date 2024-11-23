@@ -53,7 +53,6 @@ pipeline {
                                     remoteDirectory: '/', // Répertoire cible
                                     execCommand: '''
                                         echo "Stopping previous application..."
-                                        pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar 
                                         echo "Starting new application..."
                                         nohup java -jar target/demo-ci-cd-0.0.1-SNAPSHOT.jar 
                                     '''
