@@ -14,26 +14,24 @@ pipeline {
             steps {
                 echo 'Running tests...'
                 bat './mvnw test'
-
             }
         }
 
         stage('Build Application') {
             steps {
-
                 echo '...  Building application  ...'
                 bat './mvnw clean install'
-                echo 'Building application sucées...'
-                
-             
+                echo 'Building application success...'
             }
         }
-         stage('Scan') { // Étape d'analyse SonarQube
+
+        stage('Scan') { // Étape d'analyse SonarQube
             steps {
                 withSonarQubeEnv('sq1') { // Utilisation de l'environnement SonarQube configuré
-                bat './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes'
+                    bat './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes'
                 }
             }
+        }
 
         stage('Deploy') {
             when {
@@ -41,8 +39,6 @@ pipeline {
             }
             steps {
                 echo 'Deploying application to production...'
-
-             
             }
         }
     }
@@ -55,5 +51,4 @@ pipeline {
             echo "Pipeline failed for branch: ${env.BRANCH_NAME}. Check logs for details."
         }
     }
-}
 }
