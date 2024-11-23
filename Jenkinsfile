@@ -55,7 +55,7 @@ pipeline {
                                         echo "Stopping previous application..."
                                         pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar || echo "No application running"
                                         echo "Starting new application..."
-                                        nohup java -jar demo-ci-cd-0.0.1-SNAPSHOT.jar 
+                                        nohup java -jar target/demo-ci-cd-0.0.1-SNAPSHOT.jar 
                                     '''
                                 )
                             ]
