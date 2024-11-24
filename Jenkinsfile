@@ -51,7 +51,7 @@ pipeline {
                                         nohup java -jar /root/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /root/jenkinsuser/app.log 2>&1 &
                                         echo "Starting new application..."  
                                     '''
-                                )
+                                )  
                             ]
                         )
                     ]
