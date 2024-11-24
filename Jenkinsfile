@@ -2,44 +2,72 @@ pipeline {
     agent any
 
     stages {
-        stage('Build Application') {
+        stage('Checkout Code') {
             steps {
-                echo 'Building application...'
-                bat './mvnw clean package' // Compile et package le JAR
+                echo 'Checking out code...'
+                checkout scm
+                echo "Current branch: ${env.BRANCH_NAME}"
             }
         }
 
-        stage('Deploy to VM') {
+        stage('Run Tests') {
             steps {
-                echo 'Deploying to VM...'
-                sh '''
-                    # Définissez les variables
-                    VM_USER=jenkinsuser
-                    VM_IP=192.168.1.100
-                    REMOTE_DIR=/home/jenkinsuser
-                    JAR_FILE=target/demo-ci-cd-0.0.1-SNAPSHOT.jar
+                echo 'Running tests...'
+                bat './mvnw test'
+            }
+        }
 
-                    # Copier le fichier JAR
-                    scp $JAR_FILE $VM_USER@$VM_IP:$REMOTE_DIR/
+        stage('Build Application') {
+            steps {
+                echo '...  Building application  ...'
+                bat './mvnw clean install'
+                echo 'Building application success...'
+            }
+        }
 
-                    # Exécuter des commandes sur la VM
-                    ssh $VM_USER@$VM_IP << EOF
-                        echo "Stopping previous application..."
-                        pkill -f demo-ci-cd-0.0.1-SNAPSHOT.jar || echo "No application running"
-                        echo "Starting new application..."
-                        nohup java -jar $REMOTE_DIR/demo-ci-cd-0.0.1-SNAPSHOT.jar > $REMOTE_DIR/app.log 2>&1 &
-                    EOF
-                '''
+        stage('Scan') { // Étape d'analyse SonarQube
+            steps {
+                withSonarQubeEnv('sq1') { // Utilisation de l'environnement SonarQube configuré
+                    bat './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar -Dsonar.java.binaries=target/classes'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                branch 'main' // Exécuter uniquement sur la branche principale
+            }
+            steps {
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'VM-Centos', // Nom défini dans Publish Over SSH
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'target/*.jar', // Fichiers JAR générés après le build
+                                    remoteDirectory: '/home/jenkinsuser/deployments', // Répertoire cible sur la VM
+                                    execCommand: '''
+                                        echo "Stopping previous application..."
+                                        nohup java -jar /home/jenkinsuser/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
+                                        echo "Starting new application..."  
+                                    '''
+                                )
+                            ]
+                        )
+                    ]
+                    
+                )
+                echo 'Application deployed successfully to production!'
             }
         }
     }
 
     post {
         success {
-            echo 'Deployment succeeded!'
+            echo "Pipeline succeeded for branch: ${env.BRANCH_NAME}"
         }
         failure {
-            echo 'Deployment failed. Check the logs.'
+            echo "Pipeline failed for branch: ${env.BRANCH_NAME}. Check logs for details."
         }
     }
 }
