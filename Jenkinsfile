@@ -45,10 +45,10 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: 'target/*.jar', // Fichiers JAR générés après le build
-                                    remoteDirectory: '/home/jenkinsuser/deployments', // Répertoire cible sur la VM
+                                    remoteDirectory: '/root
                                     execCommand: '''
                                         echo "Stopping previous application..."
-                                        nohup java -jar /home/jenkinsuser/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /home/jenkinsuser/deployments/app.log 2>&1 &
+                                        nohup java -jar /root/deployments/demo-ci-cd-0.0.1-SNAPSHOT.jar > /root/jenkinsuser/app.log 2>&1 &
                                         echo "Starting new application..."  
                                     '''
                                 )
