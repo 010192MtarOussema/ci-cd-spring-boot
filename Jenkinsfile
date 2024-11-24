@@ -44,7 +44,7 @@ pipeline {
                             configName: 'VM-Centos', // Nom défini dans Publish Over SSH
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'target/*.jar', // Fichiers JAR générés après le build
+                                    sourceFiles: 'target/demo-ci-cd-0.0.1-SNAPSHOT.jar', // Fichiers JAR générés après le build
                                     remoteDirectory: '/root/deployments',
                                     execCommand: '''
                                         echo "Stopping previous application..."
