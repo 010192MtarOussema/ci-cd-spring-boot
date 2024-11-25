@@ -14,6 +14,7 @@ import com.devops.service.UserService;
 public class UserController {
 	
 	private String name;
+	private String testwithyassineoussam; 
     // Warning 1: Attribut `userService` non déclaré comme `final` (Checkstyle peut détecter cela)
     private UserService userService;
 
