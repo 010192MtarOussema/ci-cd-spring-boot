@@ -12,6 +12,8 @@ import com.devops.service.UserService;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+	
+	private String name;
     // Warning 1: Attribut `userService` non déclaré comme `final` (Checkstyle peut détecter cela)
     private UserService userService;
 
